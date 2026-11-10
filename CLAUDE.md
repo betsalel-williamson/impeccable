@@ -6,7 +6,7 @@ There is **one** user-invocable skill, `impeccable`, with **24 commands** undern
 
 - `SKILL.src.md` — frontmatter (with the auto-trigger-optimized description and the `allowed-tools` list), shared design laws, and the **Commands** router table. Provider `SKILL.md` files are generated from this source.
 - `reference/` — one `<command>.md` per command (`audit.md`, `polish.md`, `critique.md`, etc.), the shared playbooks the router loads outside the command table (`new-work.md`, `craft-floor.md`, `operate.md`, `routing.md`), and the native platform references (`ios.md`, `android.md`). When a sub-command is matched, the router loads its reference file.
-- `scripts/command-metadata.json` — single source of truth for each command's description, argument hint, and (eventually) category. Both the build and the engine's `pin` verb read from this.
+- `scripts/command-metadata.json` — each command's description, argument hint, and (eventually) category. The build reads it; the engine compiles in its own copy at `crates/context/src/command-metadata.json` (`pin.rs`), which nothing syncs, so change both together.
 - `scripts/impeccable` (+ `impeccable.cmd`, `VERSION`): the launcher every skill verb goes through. See **Engine binary** below.
 - `impeccable pin` — an engine verb that creates/removes lightweight redirect shims so users can have `/audit` as a standalone shortcut that delegates to `/impeccable audit`.
 
@@ -129,7 +129,7 @@ Source files use placeholders that get replaced per-provider:
 - `{{config_file}}` — Config file name (CLAUDE.md, .cursorrules, etc.)
 - `{{ask_instruction}}` — How to ask user questions
 - `{{command_prefix}}` — `/` or `$` depending on provider
-- `{{available_commands}}` — auto-populated list of commands (from `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`)
+- `{{available_commands}}` — the commands reference files suggest as next steps (`IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`, a subset of the Commands table)
 - `{{scripts_path}}` — provider-aware path to the skill's scripts directory
 - `{{reference_path}}` — agent bodies only (`skill/agents/*.md`): the skill's `reference/` directory, relative to each emitted copy
 
@@ -311,7 +311,7 @@ Workflow for any component:
 
 The script refuses to run if: the working tree is dirty, HEAD is ahead of origin, the tag already exists, the matching changelog entry is missing, or (for skill/extension) `bun run build:release` / `bun run build:extension` produces uncommitted changes — meaning the harness output dirs or `extension/detector/` files weren't refreshed before the bump was committed.
 
-Skill releases attach `dist/universal.zip`. Extension releases run `bun run build:extension` first and attach `dist/extension.zip`. CLI releases print a reminder to run `npm publish` separately; extension releases print a reminder to upload the zip to the Chrome Web Store dashboard.
+Skill releases attach `dist/universal.zip` and its signature `dist/universal.zip.sig.json`. Extension releases run `bun run build:extension` first and attach `dist/extension.zip` and `dist/extension-firefox.zip`. CLI releases print a reminder to run `npm publish` separately; extension releases print a reminder to upload the zip to the Chrome Web Store dashboard.
 
 If you need to fix release notes after the fact (typo, missing thank-you, formatting bug): `gh release edit <tag> --notes-file <md>`. The release script's `htmlToMarkdown` function is the cleanest source for regenerating notes from the changelog.
 
@@ -333,10 +333,10 @@ All commands live under `/impeccable`. To add a new one:
 
 1. Create `skill/reference/<command>.md` with the command's instructions (this is what the LLM loads when the command is invoked)
 2. Add a row to the **Sub-command reference table** in `skill/SKILL.src.md`
-3. Add an entry to the **Command menu** section in the same file
-4. Add the command name to `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`
+3. Nothing else in SKILL.src.md: the no-argument menu in `reference/routing.md` is built from the Commands table
+4. If other commands should suggest it as a next step, add it to `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`
 5. Add it to the `pin` verb's valid-command list (`crates/context`) and record the pin/unpin oracle case
-6. Add its metadata (description + argumentHint) to `skill/scripts/command-metadata.json`
+6. Add its metadata (description + argumentHint) to `skill/scripts/command-metadata.json` and its engine copy `crates/context/src/command-metadata.json`
 7. Add its category to `SKILL_CATEGORIES` in `scripts/lib/skill-categories.js`
 8. Add its relationships to `COMMAND_RELATIONSHIPS` in impeccable-site's `sub-pages-data.js`
 9. In the private impeccable-site repo: add the category to `site/scripts/data.js`, the symbol/number to `framework-viz.js`, and optionally an editorial wrapper under `site/content/skills/`
@@ -345,7 +345,8 @@ The build system counts commands from the router table automatically. Update the
 
 - impeccable-site: `site/pages/index.astro` meta descriptions and hero box
 - `README.md` — intro, command count, commands table
-- `AGENTS.md` — intro command count
+- `README.npm.md` — command count
+- `AGENTS.md` — scanned for a command count (it currently states none)
 - `.claude-plugin/plugin.json` — description
 - `.claude-plugin/marketplace.json` — metadata description + plugin description
 
