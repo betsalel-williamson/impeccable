@@ -1,5 +1,7 @@
 # 4.4.0 review handoff
 
+> **Ready to archive after review.** This is the review handoff for 4.4.0, which has shipped. Its "Behavior to preserve" rules are stated in [features/comp-led-build.md](features/comp-led-build.md) and [PLAN-REVIEW.md](PLAN-REVIEW.md); git history keeps this note.
+
 This candidate combines the component-review work with current main. It is not a published release. The engine and platform packages must exist before the skill version bump is merged.
 
 ## Behavior to preserve

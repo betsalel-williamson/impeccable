@@ -1,12 +1,12 @@
 # ADR: Live Variant Mode
 
-**Status:** Implemented
+**Status:** Implemented. Superseded in part: the server is now the Rust `live` crate, and the browser restores sessions from the server rather than localStorage. [features/live-mode.md](features/live-mode.md) states the current contract.
 **Date:** 2026-04-12
 **Author:** Paul Bakaus + Claude
 
 ## Context
 
-Impeccable is a design skill for AI coding agents. It teaches AI harnesses (Claude Code, Cursor, Gemini CLI, Codex, etc.) how to produce better frontend design. The skill has 23 commands (bolder, quieter, polish, typeset, etc.) that the agent runs on source code.
+Impeccable is a design skill for AI coding agents. It teaches AI harnesses (Claude Code, Cursor, Gemini CLI, Codex, etc.) how to produce better frontend design. The skill has 24 commands (bolder, quieter, polish, typeset, etc.) that the agent runs on source code.
 
 The missing piece: there was no way to visually iterate on a live page. The user could ask the agent to "make this bolder," but they had to read the code diff, reload the page, and decide if they liked it. If not, they'd ask again, wait, reload, repeat. Slow and disconnected.
 

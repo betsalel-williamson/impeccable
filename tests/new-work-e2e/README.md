@@ -35,7 +35,8 @@ cases) and is not repeated here.
 
 Both verbs run through the engine binary (`impeccable serve-question`,
 `impeccable generate-image`) resolved by `tests/lib/engine-bin.mjs`:
-`IMPECCABLE_BIN` or `skill/scripts/bin/<os>-<arch>/` (`bun run fetch:engine`).
+`IMPECCABLE_BIN`, `skill/scripts/bin/<os>-<arch>/` (`bun run fetch:engine`), or
+`target/release/impeccable`.
 
 ## Pieces
 

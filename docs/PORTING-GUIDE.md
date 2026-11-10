@@ -1,5 +1,7 @@
 # Porting guide
 
+> **Ready to archive after review.** This guide served the JS-to-Rust port, which is finished. Its Windows section still holds; [developer/engine-development.md](developer/engine-development.md) covers day-to-day engine work.
+
 Conventions every porting task follows. The bar is byte-equal behavior against
 the JS goldens; read this before touching a crate.
 
@@ -48,7 +50,7 @@ the JS goldens; read this before touching a crate.
 | hook | hook, hook-before-edit, hooks admin | |
 | live | live server and all live verbs | require Node except the documented Svelte/Vue exception |
 | cli | argv router, exit codes, stdout writer | business logic |
-| wasm | wasm-bindgen exports over core; `JsDom` (the probe over JS imports); see docs/WASM-BUNDLE.md | |
+| wasm | wasm-bindgen exports over core; `JsDom` (the probe over JS imports); see [ENGINE.md](ENGINE.md#the-browser-bundle) | |
 
 ## Workflow per module
 
@@ -92,7 +94,7 @@ expected values came from `node -p "path.win32.X(...)"`. Rules:
    `cmd.exe /d /s /c`), `node_exe` (`node.exe`), `tool_on_path`
    (`which` / `where`).
 5. Chrome discovery already carries the Windows candidate list; the launcher
-   for Windows is `launcher/impeccable.cmd`.
+   for Windows is `skill/scripts/impeccable.cmd`.
 
 Cross-checking from macOS or Linux: `rustup target add x86_64-pc-windows-msvc`
 then `cargo check --workspace --target x86_64-pc-windows-msvc`. `ring`

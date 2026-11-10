@@ -17,9 +17,10 @@ Everything else is the JS contract's own environment (`IMPECCABLE_CONTEXT_DIR`,
 `IMPECCABLE_UPDATE_*`, `IMPECCABLE_STALENESS_CACHE`, `IMPECCABLE_CATALOG_DIR`,
 `IMPECCABLE_API_URL`, `IMPECCABLE_IMAGE_GEN_FAKE`, ...), read unchanged.
 
-The launcher (`launcher/impeccable`) does not export these yet; a launcher that
-sets `IMPECCABLE_SKILL_DIR="$dir/.."` and `IMPECCABLE_SELF="$0"` would make
-directives name the launcher instead of the platform binary.
+The launcher (`skill/scripts/impeccable`, and `impeccable.cmd` on Windows)
+sets `IMPECCABLE_SKILL_DIR` to its skill dir and `IMPECCABLE_SELF` to its own
+path when they are unset, so directives name the launcher instead of the
+platform binary.
 
 Oracle note: run the public repo's `tests/oracle/run.mjs` with
 `IMPECCABLE_SKILL_DIR=<public repo>/skill` (the corpus expects the native

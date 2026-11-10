@@ -6,7 +6,7 @@ There is **one** user-invocable skill, `impeccable`, with **24 commands** undern
 
 - `SKILL.src.md` — frontmatter (with the auto-trigger-optimized description and the `allowed-tools` list), shared design laws, and the **Commands** router table. Provider `SKILL.md` files are generated from this source.
 - `reference/` — one `<command>.md` per command (`audit.md`, `polish.md`, `critique.md`, etc.), the shared playbooks the router loads outside the command table (`new-work.md`, `craft-floor.md`, `operate.md`, `routing.md`), and the native platform references (`ios.md`, `android.md`). When a sub-command is matched, the router loads its reference file.
-- `scripts/command-metadata.json` — single source of truth for each command's description, argument hint, and (eventually) category. Both the build and the engine's `pin` verb read from this.
+- `scripts/command-metadata.json` — each command's description, argument hint, and (eventually) category. The build reads it; the engine compiles in its own copy at `crates/context/src/command-metadata.json` (`pin.rs`), which nothing syncs, so change both together.
 - `scripts/impeccable` (+ `impeccable.cmd`, `VERSION`): the launcher every skill verb goes through. See **Engine binary** below.
 - `impeccable pin` — an engine verb that creates/removes lightweight redirect shims so users can have `/audit` as a standalone shortcut that delegates to `/impeccable audit`.
 
@@ -39,7 +39,7 @@ v4 replaced the old brand/product **register** axis with four modes, named in SK
 Differences from register that matter when editing skill text:
 
 1. **Mode is per surface, not per project.** A tool's landing page is Persuade even though the product is Operate; a fashion house's documentation is Read. Choose from the requested surface.
-2. **Mode is not stored in PRODUCT.md.** It persists only in that surface's brief under `.impeccable/surfaces/`. There is no `## Register` field and no `extractRegister()`; PRODUCT.md's only bare-value field is `## Platform`. A `## Register` section left over from v3 is reported at boot as deprecated (see `lib/staleness.mjs`) and read by nothing.
+2. **Mode is not stored in PRODUCT.md.** It persists only in that surface's brief under `.impeccable/surfaces/`. There is no `## Register` field and no `extractRegister()`; PRODUCT.md's only bare-value field is `## Platform`. A `## Register` section left over from v3 is reported at boot as deprecated (see `PRODUCT_DEPRECATED_SECTIONS` in `crates/context/src/artifact_schema.rs`) and read by nothing.
 3. **There are no register reference files.** `reference/brand.md` and `reference/product.md` are gone. `reference/operate.md` carries the deeper Operate and Read guidance; `reference/new-work.md` owns new surfaces.
 4. **Mode rules for directions and comps live in `reference/mode-persuade.md` (Persuade and Experience), `mode-operate.md`, and `mode-read.md`**, each with exactly two sections, `## Directions` and `## Comps`. The router never sends the agent to them: `impeccable concept-seed --mode <mode>` prints the mode's file as a MODE RULES block, because a printed engine line is followed where an extra file read gets skipped. `new-work.md` and `visualize.md` keep only the shared procedure and point at the block. Persuade's hill-climbed comp rules live in `mode-persuade.md`; do not reintroduce mode clauses into the shared files.
 5. **Mode also decides the build path.** Operate and Read surfaces are code-led whatever `buildPath` the project records; the recorded default (and the comp default when nothing is recorded) governs Persuade and Experience only. `concept-seed --mode` prints the resolved path in its PRESENTATION block (`code_led_mode` in `crates/context/src/concept_seed.rs`), and the decision page keeps its toggle so one round can still be flipped to comp. In blind ratings, comps of working screens and documents scored 2.0 to 2.9 across five rule changes while code-led builds of the same briefs scored 3 to 3.5 and were always complete.
@@ -84,7 +84,7 @@ Impeccable writes files into user projects, so a released version has to cope wi
 
 **When you retire a PRODUCT.md field, add it to the engine's deprecated-sections list** with the reason (and record the new boot output as an oracle case). The reason is not decoration: told only that a field is deprecated, models preserve it "just in case", which is how a retired axis keeps steering current output.
 
-**`doctor` is a utility command, not a design command.** It follows the `hooks` and `pin` pattern (a line in SKILL.src.md plus `reference/doctor.md`), not the Commands-table pattern. It is deliberately **not** in `IMPECCABLE_SUB_COMMANDS`, `command-metadata.json`, `SKILL_CATEGORIES`, or the `pin` verb's valid-command list, and it does not count toward the 23. Keep maintenance tooling out of the design menu.
+**`doctor` is a utility command, not a design command.** It follows the `hooks` and `pin` pattern (a line in SKILL.src.md plus `reference/doctor.md`), not the Commands-table pattern. It is deliberately **not** in `IMPECCABLE_SUB_COMMANDS`, `command-metadata.json`, `SKILL_CATEGORIES`, or the `pin` verb's valid-command list, and it does not count toward the 24. Keep maintenance tooling out of the design menu.
 
 ## Repo split: public product vs private service (impeccable-site)
 
@@ -93,7 +93,7 @@ As of v4 the repo holds only the open-source product layer: the skill, CLI, exte
 Consequences here:
 
 - `impeccable concept-seed` has no local catalog. It resolves data via `IMPECCABLE_CATALOG_DIR` (private repo, evals, tests), then the roll API at impeccable.style, then a degraded promotion-only seed. Oracle cases run against `tests/fixtures/concept-catalog/`.
-- The choice-ping telemetry (`--chosen`) honors `DO_NOT_TRACK` and `IMPECCABLE_NO_TELEMETRY` and only fires for API-dealt rolls. Every roll and choice request carries `X-Impeccable-Client: impeccable/<version>[ <channel>]`; tests and CI set `IMPECCABLE_TELEMETRY_CHANNEL=test` so their traffic is tagged (keep it that way for anything new that can reach the API). Decision-page cards declare `kind` (and `catalogId` on challengers), which `serve-question --start/--update` enforce; the page sends the ping itself (`source: "picker"`, `kindSource: explicit|inferred`) for every resolved round, re-rolls included (`kind: "reroll"`), and marks the round in `.impeccable/questions/seeds/` so the agent's `--kind` rerun prints `choice already recorded`; `crates/context/src/telemetry.rs` holds the rules. Everything under `.impeccable/questions/` is runtime state that must never be committed (a committed roll record ties telemetry to a repository): every write there keeps a self-ignoring `.impeccable/questions/.gitignore` in place (`impeccable_common::git::ensure_dir_ignored`); use the same helper for any new runtime file that holds the seed key or a dealt hand. Committed files never hold the raw seed key: concept-seed prints a `SEED REFERENCE` (`seed:` + 16 hex of SHA-256 of `impeccable-seed:` + a per-user salt from `~/.impeccable/seed-salt` + key; `impeccable_common::seed`) for the surface brief, and `--from` resolves it through the local ledger; new keys are 128 CSPRNG bits. A `.gitignore` cannot untrack files users already committed, so rolls warn once (`tracked_runtime_notice`) and write the roll record to `roll.local.json` while `roll.json` is tracked. Ledger updates go through `telemetry::Ledger`, which locks per file; the page claims a round as `pending` and the agent's rerun waits for it, both sending the round's `pingId`. Tests that touch references pin `IMPECCABLE_SEED_SALT`. Opt-out (`DO_NOT_TRACK` / `IMPECCABLE_NO_TELEMETRY` non-empty and not `0`/`false`, or `"telemetry": false` from `impeccable telemetry off` in `~/.impeccable/config.json` or a project config) still rolls, sends `X-Impeccable-Telemetry: off`, and sends and stores nothing telemetry-only.
+- The choice-ping telemetry (`--chosen`) honors `DO_NOT_TRACK` and `IMPECCABLE_NO_TELEMETRY` and only fires for API-dealt rolls. Every roll and choice request carries `X-Impeccable-Client: impeccable/<version>[ <channel>]`; tests and CI set `IMPECCABLE_TELEMETRY_CHANNEL=test` so their traffic is tagged (keep it that way for anything new that can reach the API). Decision-page cards declare `kind` (and `catalogId` on challengers), which `serve-question --start/--update` enforce; the page sends the ping itself (`source: "picker"`, `kindSource: explicit|inferred`) for every resolved round, re-rolls included (`kind: "reroll"`), and marks the round in `.impeccable/questions/seeds/` so the agent's `--kind` rerun prints `choice already recorded`; `crates/context/src/telemetry.rs` holds the rules. Everything under `.impeccable/questions/` is runtime state that must never be committed (a committed roll record ties telemetry to a repository): every write there keeps a self-ignoring `.impeccable/questions/.gitignore` in place (`impeccable_common::git::ensure_dir_ignored`); use the same helper for any new runtime file that holds the seed key or a dealt hand. Committed files never hold the raw seed key: concept-seed prints a `SEED REFERENCE` (`seed:` + 16 hex of SHA-256 of `impeccable-seed:<salt>:<key>`, with a per-user salt from `~/.impeccable/seed-salt`; `impeccable_common::seed`) for the surface brief, and `--from` resolves it through the local ledger; new keys are 128 CSPRNG bits. A `.gitignore` cannot untrack files users already committed, so rolls warn once (`tracked_runtime_notice`) and write the roll record to `roll.local.json` while `roll.json` is tracked. Ledger updates go through `telemetry::Ledger`, which locks per file; the page claims a round as `pending` and the agent's rerun waits for it, both sending the round's `pingId`. Tests that touch references pin `IMPECCABLE_SEED_SALT`. Opt-out (`DO_NOT_TRACK` / `IMPECCABLE_NO_TELEMETRY` non-empty and not `0`/`false`, or `"telemetry": false` from `impeccable telemetry off` in `~/.impeccable/config.json` or a project config) still rolls, sends `X-Impeccable-Telemetry: off`, and sends and stores nothing telemetry-only.
 - Site copy, changelog, theme, and count validation for site pages happen in impeccable-site; this repo's `validateProse` scans only the READMEs.
 - The release script reads the changelog from `../impeccable-site/site/pages/changelog.astro` when releasing from here.
 - Never add catalog data files back to this repo; the catalog is the paid-service moat.
@@ -129,7 +129,7 @@ Source files use placeholders that get replaced per-provider:
 - `{{config_file}}` — Config file name (CLAUDE.md, .cursorrules, etc.)
 - `{{ask_instruction}}` — How to ask user questions
 - `{{command_prefix}}` — `/` or `$` depending on provider
-- `{{available_commands}}` — auto-populated list of commands (from `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`)
+- `{{available_commands}}` — the commands reference files suggest as next steps (`IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`, a subset of the Commands table)
 - `{{scripts_path}}` — provider-aware path to the skill's scripts directory
 - `{{reference_path}}` — agent bodies only (`skill/agents/*.md`): the skill's `reference/` directory, relative to each emitted copy
 
@@ -209,7 +209,7 @@ For verb-level behavior changes in `crates/`, run focused crate tests and `bun r
 `tests/live-e2e.test.mjs` drives the entire user flow (handshake → pick → Go → cycle → accept → carbonize cleanup) against every fixture in `tests/framework-fixtures/` that declares a `runtime` block. Each fixture installs real deps, boots its framework dev server (Vite, Next, SvelteKit, Astro, Nuxt static), and runs Playwright Chromium against a deterministic fake agent that produces realistic variants in the exact format `reference/live.md` describes.
 
 ```bash
-bun run test:live-e2e                                       # full suite, ~2 min, 19 fixtures
+bun run test:live-e2e                                       # full suite, ~2 min, 29 fixtures
 IMPECCABLE_E2E_ONLY=vite8-react-modal bun run test:live-e2e # scope to one fixture
 IMPECCABLE_E2E_DEBUG=1 bun run test:live-e2e                # dump page DOM + dev-server tail on failure
 ```
@@ -232,7 +232,7 @@ Adding a new fixture is a matter of cloning a directory under `tests/framework-f
 
 ### Skill-behavior tests
 
-`tests/skill-behavior/scenarios.test.mjs` is the LLM-backed safety net for edits to `skill/SKILL.src.md` and the Setup-adjacent reference files (`init.md`, `document.md`, `new-work.md`, sub-command refs). It inlines the source `skill/SKILL.src.md` into the system prompt of a real LLM, gives the agent `bash` / `read` / `write` / `list` tools scoped to a temp workspace, and asserts on the tool-call trace — not on the model's free-form output. The trace is the source of truth. `tests/skill-behavior/workflow-contract.test.mjs` adds the end-to-end flows (attended fresh init, initialized natural build request, replacement-world redesign, scope-preserving refinement), asserting on question order and artifact writes.
+`tests/skill-behavior/scenarios.test.mjs` is the LLM-backed safety net for edits to `skill/SKILL.src.md` and the Setup-adjacent reference files (`init.md`, `document.md`, `new-work.md`, sub-command refs). It inlines the source `skill/SKILL.src.md` into the system prompt of a real LLM, gives the agent `bash` / `read` / `write` / `list` tools scoped to a temp workspace, and asserts on the tool-call trace — not on the model's free-form output. The trace is the source of truth. `tests/skill-workflow/full-build.test.mjs` (`bun run test:skill-workflow`) adds the end-to-end flows (attended fresh init, initialized natural build request, replacement-world redesign, scope-preserving refinement), asserting on question order and artifact writes.
 
 ```bash
 bun run test:skill-behavior                                        # full suite, ~5 min, ~$0.50-1.50 across providers
@@ -240,7 +240,7 @@ IMPECCABLE_SKILL_BEHAVIOR_MODELS=gemini-3.5-flash bun run test:skill-behavior   
 IMPECCABLE_SKILL_BEHAVIOR_VERBOSE=1 bun run test:skill-behavior    # dump per-scenario trace JSON to stderr (use when iterating)
 ```
 
-**Frontier tiers, more than one family.** The lineup is `DEFAULT_MODELS` in `tests/skill-behavior/providers.mjs`, currently `claude-sonnet-5` and `gemini-3.6-flash`. `gpt-5.6-luna` and `deepseek-v4-flash` were dropped in 2026-08: below the frontier tier they fail scenarios for model-floor reasons rather than skill-text defects, and a suite that is always red is a suite nobody reads. **Don't substitute Claude alone**: many of the most useful findings come from divergence between families, so keep at least two. The dropped models stay selectable via `IMPECCABLE_SKILL_BEHAVIOR_MODELS` when a Setup or routing change warrants a wider sweep.
+**Frontier tiers, more than one family.** The lineup is `DEFAULT_MODELS` in `tests/skill-behavior/providers.mjs`, currently `claude-sonnet-5`, `gpt-5.6-terra` and `gemini-3.7-flash`. `gpt-5.6-luna` and `deepseek-v4-flash` were dropped in 2026-08: below the frontier tier they fail scenarios for model-floor reasons rather than skill-text defects, and a suite that is always red is a suite nobody reads. **Don't substitute Claude alone**: many of the most useful findings come from divergence between families, so keep at least two. The dropped models stay selectable via `IMPECCABLE_SKILL_BEHAVIOR_MODELS` when a Setup or routing change warrants a wider sweep.
 
 **Auth** lives in `~/.config/impeccable/dev.env` (mode 0600, shared by every Impeccable repo; `IMPECCABLE_DEV_KEYS` names another file, and real environment variables win). Keys are passed to each SDK and never written into `process.env`, so child processes do not inherit them. Providers skip cleanly when their key is unset; they don't fail.
 
@@ -311,7 +311,7 @@ Workflow for any component:
 
 The script refuses to run if: the working tree is dirty, HEAD is ahead of origin, the tag already exists, the matching changelog entry is missing, or (for skill/extension) `bun run build:release` / `bun run build:extension` produces uncommitted changes — meaning the harness output dirs or `extension/detector/` files weren't refreshed before the bump was committed.
 
-Skill releases attach `dist/universal.zip`. Extension releases run `bun run build:extension` first and attach `dist/extension.zip`. CLI releases print a reminder to run `npm publish` separately; extension releases print a reminder to upload the zip to the Chrome Web Store dashboard.
+Skill releases attach `dist/universal.zip` and its signature `dist/universal.zip.sig.json`. Extension releases run `bun run build:extension` first and attach `dist/extension.zip` and `dist/extension-firefox.zip`. CLI releases print a reminder to run `npm publish` separately; extension releases print a reminder to upload the zip to the Chrome Web Store dashboard.
 
 If you need to fix release notes after the fact (typo, missing thank-you, formatting bug): `gh release edit <tag> --notes-file <md>`. The release script's `htmlToMarkdown` function is the cleanest source for regenerating notes from the changelog.
 
@@ -333,10 +333,10 @@ All commands live under `/impeccable`. To add a new one:
 
 1. Create `skill/reference/<command>.md` with the command's instructions (this is what the LLM loads when the command is invoked)
 2. Add a row to the **Sub-command reference table** in `skill/SKILL.src.md`
-3. Add an entry to the **Command menu** section in the same file
-4. Add the command name to `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`
+3. Nothing else in SKILL.src.md: the no-argument menu in `reference/routing.md` is built from the Commands table
+4. If other commands should suggest it as a next step, add it to `IMPECCABLE_SUB_COMMANDS` in `scripts/lib/utils.js`
 5. Add it to the `pin` verb's valid-command list (`crates/context`) and record the pin/unpin oracle case
-6. Add its metadata (description + argumentHint) to `skill/scripts/command-metadata.json`
+6. Add its metadata (description + argumentHint) to `skill/scripts/command-metadata.json` and its engine copy `crates/context/src/command-metadata.json`
 7. Add its category to `SKILL_CATEGORIES` in `scripts/lib/skill-categories.js`
 8. Add its relationships to `COMMAND_RELATIONSHIPS` in impeccable-site's `sub-pages-data.js`
 9. In the private impeccable-site repo: add the category to `site/scripts/data.js`, the symbol/number to `framework-viz.js`, and optionally an editorial wrapper under `site/content/skills/`
@@ -345,7 +345,8 @@ The build system counts commands from the router table automatically. Update the
 
 - impeccable-site: `site/pages/index.astro` meta descriptions and hero box
 - `README.md` — intro, command count, commands table
-- `AGENTS.md` — intro command count
+- `README.npm.md` — command count
+- `AGENTS.md` — scanned for a command count (it currently states none)
 - `.claude-plugin/plugin.json` — description
 - `.claude-plugin/marketplace.json` — metadata description + plugin description
 

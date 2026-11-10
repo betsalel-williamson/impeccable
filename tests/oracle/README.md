@@ -16,8 +16,8 @@ machine-specific paths and timestamps normalized.
   self-check on a pre-swap checkout) and diffs. Byte-equal is the bar;
   `DELTAS.md` lists reviewed exceptions.
 - `tests/oracle.test.mjs` runs `run.mjs` under `bun run test` and skips when
-  no binary is found (`IMPECCABLE_BIN` or `skill/scripts/bin/<os>-<arch>/`,
-  filled by `bun run fetch:engine`).
+  no binary is found (`IMPECCABLE_BIN`, `skill/scripts/bin/<os>-<arch>/`
+  filled by `bun run fetch:engine`, or `target/release/impeccable`).
 - `cases/*.mjs` define the corpus (default export: array or async function
   returning an array). `workspaces/` holds project fixtures that are copied to
   a temp dir per run, so cases can write freely.
