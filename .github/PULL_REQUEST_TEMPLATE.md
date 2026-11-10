@@ -23,7 +23,7 @@ This repo is issue-first for outside contributions. If you are not `pbakaus` or 
 
 ## Checklist
 
-- [ ] Source files updated in `source/`
+- [ ] Source files updated in `skill/`
 - [ ] `bun run build` ran successfully
 - [ ] `bun test` passes
 - [ ] Tested with at least one provider (Cursor / Claude Code / Gemini CLI / Codex / Copilot / Grok Build / Kiro / OpenCode / Qoder / Mistral Vibe)

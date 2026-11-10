@@ -39,7 +39,7 @@ v4 replaced the old brand/product **register** axis with four modes, named in SK
 Differences from register that matter when editing skill text:
 
 1. **Mode is per surface, not per project.** A tool's landing page is Persuade even though the product is Operate; a fashion house's documentation is Read. Choose from the requested surface.
-2. **Mode is not stored in PRODUCT.md.** It persists only in that surface's brief under `.impeccable/surfaces/`. There is no `## Register` field and no `extractRegister()`; PRODUCT.md's only bare-value field is `## Platform`. A `## Register` section left over from v3 is reported at boot as deprecated (see `lib/staleness.mjs`) and read by nothing.
+2. **Mode is not stored in PRODUCT.md.** It persists only in that surface's brief under `.impeccable/surfaces/`. There is no `## Register` field and no `extractRegister()`; PRODUCT.md's only bare-value field is `## Platform`. A `## Register` section left over from v3 is reported at boot as deprecated (see `PRODUCT_DEPRECATED_SECTIONS` in `crates/context/src/artifact_schema.rs`) and read by nothing.
 3. **There are no register reference files.** `reference/brand.md` and `reference/product.md` are gone. `reference/operate.md` carries the deeper Operate and Read guidance; `reference/new-work.md` owns new surfaces.
 4. **Mode rules for directions and comps live in `reference/mode-persuade.md` (Persuade and Experience), `mode-operate.md`, and `mode-read.md`**, each with exactly two sections, `## Directions` and `## Comps`. The router never sends the agent to them: `impeccable concept-seed --mode <mode>` prints the mode's file as a MODE RULES block, because a printed engine line is followed where an extra file read gets skipped. `new-work.md` and `visualize.md` keep only the shared procedure and point at the block. Persuade's hill-climbed comp rules live in `mode-persuade.md`; do not reintroduce mode clauses into the shared files.
 5. **Mode also decides the build path.** Operate and Read surfaces are code-led whatever `buildPath` the project records; the recorded default (and the comp default when nothing is recorded) governs Persuade and Experience only. `concept-seed --mode` prints the resolved path in its PRESENTATION block (`code_led_mode` in `crates/context/src/concept_seed.rs`), and the decision page keeps its toggle so one round can still be flipped to comp. In blind ratings, comps of working screens and documents scored 2.0 to 2.9 across five rule changes while code-led builds of the same briefs scored 3 to 3.5 and were always complete.
@@ -84,7 +84,7 @@ Impeccable writes files into user projects, so a released version has to cope wi
 
 **When you retire a PRODUCT.md field, add it to the engine's deprecated-sections list** with the reason (and record the new boot output as an oracle case). The reason is not decoration: told only that a field is deprecated, models preserve it "just in case", which is how a retired axis keeps steering current output.
 
-**`doctor` is a utility command, not a design command.** It follows the `hooks` and `pin` pattern (a line in SKILL.src.md plus `reference/doctor.md`), not the Commands-table pattern. It is deliberately **not** in `IMPECCABLE_SUB_COMMANDS`, `command-metadata.json`, `SKILL_CATEGORIES`, or the `pin` verb's valid-command list, and it does not count toward the 23. Keep maintenance tooling out of the design menu.
+**`doctor` is a utility command, not a design command.** It follows the `hooks` and `pin` pattern (a line in SKILL.src.md plus `reference/doctor.md`), not the Commands-table pattern. It is deliberately **not** in `IMPECCABLE_SUB_COMMANDS`, `command-metadata.json`, `SKILL_CATEGORIES`, or the `pin` verb's valid-command list, and it does not count toward the 24. Keep maintenance tooling out of the design menu.
 
 ## Repo split: public product vs private service (impeccable-site)
 
@@ -209,7 +209,7 @@ For verb-level behavior changes in `crates/`, run focused crate tests and `bun r
 `tests/live-e2e.test.mjs` drives the entire user flow (handshake → pick → Go → cycle → accept → carbonize cleanup) against every fixture in `tests/framework-fixtures/` that declares a `runtime` block. Each fixture installs real deps, boots its framework dev server (Vite, Next, SvelteKit, Astro, Nuxt static), and runs Playwright Chromium against a deterministic fake agent that produces realistic variants in the exact format `reference/live.md` describes.
 
 ```bash
-bun run test:live-e2e                                       # full suite, ~2 min, 19 fixtures
+bun run test:live-e2e                                       # full suite, ~2 min, 29 fixtures
 IMPECCABLE_E2E_ONLY=vite8-react-modal bun run test:live-e2e # scope to one fixture
 IMPECCABLE_E2E_DEBUG=1 bun run test:live-e2e                # dump page DOM + dev-server tail on failure
 ```
@@ -232,7 +232,7 @@ Adding a new fixture is a matter of cloning a directory under `tests/framework-f
 
 ### Skill-behavior tests
 
-`tests/skill-behavior/scenarios.test.mjs` is the LLM-backed safety net for edits to `skill/SKILL.src.md` and the Setup-adjacent reference files (`init.md`, `document.md`, `new-work.md`, sub-command refs). It inlines the source `skill/SKILL.src.md` into the system prompt of a real LLM, gives the agent `bash` / `read` / `write` / `list` tools scoped to a temp workspace, and asserts on the tool-call trace — not on the model's free-form output. The trace is the source of truth. `tests/skill-behavior/workflow-contract.test.mjs` adds the end-to-end flows (attended fresh init, initialized natural build request, replacement-world redesign, scope-preserving refinement), asserting on question order and artifact writes.
+`tests/skill-behavior/scenarios.test.mjs` is the LLM-backed safety net for edits to `skill/SKILL.src.md` and the Setup-adjacent reference files (`init.md`, `document.md`, `new-work.md`, sub-command refs). It inlines the source `skill/SKILL.src.md` into the system prompt of a real LLM, gives the agent `bash` / `read` / `write` / `list` tools scoped to a temp workspace, and asserts on the tool-call trace — not on the model's free-form output. The trace is the source of truth. `tests/skill-workflow/full-build.test.mjs` (`bun run test:skill-workflow`) adds the end-to-end flows (attended fresh init, initialized natural build request, replacement-world redesign, scope-preserving refinement), asserting on question order and artifact writes.
 
 ```bash
 bun run test:skill-behavior                                        # full suite, ~5 min, ~$0.50-1.50 across providers
@@ -240,7 +240,7 @@ IMPECCABLE_SKILL_BEHAVIOR_MODELS=gemini-3.5-flash bun run test:skill-behavior   
 IMPECCABLE_SKILL_BEHAVIOR_VERBOSE=1 bun run test:skill-behavior    # dump per-scenario trace JSON to stderr (use when iterating)
 ```
 
-**Frontier tiers, more than one family.** The lineup is `DEFAULT_MODELS` in `tests/skill-behavior/providers.mjs`, currently `claude-sonnet-5` and `gemini-3.6-flash`. `gpt-5.6-luna` and `deepseek-v4-flash` were dropped in 2026-08: below the frontier tier they fail scenarios for model-floor reasons rather than skill-text defects, and a suite that is always red is a suite nobody reads. **Don't substitute Claude alone**: many of the most useful findings come from divergence between families, so keep at least two. The dropped models stay selectable via `IMPECCABLE_SKILL_BEHAVIOR_MODELS` when a Setup or routing change warrants a wider sweep.
+**Frontier tiers, more than one family.** The lineup is `DEFAULT_MODELS` in `tests/skill-behavior/providers.mjs`, currently `claude-sonnet-5`, `gpt-5.6-terra` and `gemini-3.7-flash`. `gpt-5.6-luna` and `deepseek-v4-flash` were dropped in 2026-08: below the frontier tier they fail scenarios for model-floor reasons rather than skill-text defects, and a suite that is always red is a suite nobody reads. **Don't substitute Claude alone**: many of the most useful findings come from divergence between families, so keep at least two. The dropped models stay selectable via `IMPECCABLE_SKILL_BEHAVIOR_MODELS` when a Setup or routing change warrants a wider sweep.
 
 **Auth** lives in `~/.config/impeccable/dev.env` (mode 0600, shared by every Impeccable repo; `IMPECCABLE_DEV_KEYS` names another file, and real environment variables win). Keys are passed to each SDK and never written into `process.env`, so child processes do not inherit them. Providers skip cleanly when their key is unset; they don't fail.
 
