@@ -6,8 +6,10 @@
 //!   `X-Impeccable-Client` header every `/api/roll` and `/api/chosen` request
 //!   carries;
 //! - the seed reference and the seed ledger. The reference,
-//!   `seed:<16 hex of sha256("impeccable-seed:" + key)>`, is what committed
-//!   files (the surface brief's FORM line) record instead of the key. The
+//!   `seed:<16 hex of sha256("impeccable-seed:" + salt + ":" + key)>`, with
+//!   the per-user salt from `~/.impeccable/seed-salt` (`impeccable_common::seed`),
+//!   is what committed files (the surface brief's FORM line) record instead of
+//!   the key. The
 //!   ledger, `.impeccable/questions/seeds/<those 16 hex>.json`, is the local,
 //!   self-ignored record that resolves a reference back to its key on this
 //!   machine (`{"key"}`, written for every roll), plus, only while telemetry

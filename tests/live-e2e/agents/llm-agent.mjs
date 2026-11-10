@@ -9,10 +9,11 @@
  * orchestrator handles wrap, write, accept, and carbonize cleanup
  * deterministically.
  *
- * Primary provider/model: Anthropic + Claude Haiku 4.5. DeepSeek V4 Flash is
- * a secondary cheap fallback used only when ANTHROPIC_API_KEY is absent and
- * DEEPSEEK_API_KEY is present, or when explicitly forced with
- * IMPECCABLE_E2E_LLM_PROVIDER=deepseek. Override the model via { model } when
+ * Provider selection: IMPECCABLE_E2E_LLM_PROVIDER (or { provider }) wins
+ * when set. Otherwise the first provider with a key is used, in this order:
+ * OpenAI gpt-5.6-terra (OPENAI_API_KEY), Anthropic Claude Haiku 4.5
+ * (ANTHROPIC_API_KEY), DeepSeek V4 Flash (DEEPSEEK_API_KEY); with no key at
+ * all it resolves to OpenAI and skips. Override the model via { model } when
  * constructing, or via IMPECCABLE_E2E_LLM_MODEL at the call site.
  *
  * Prompt caching: live.md (the live-mode skill spec) is the bulk of the

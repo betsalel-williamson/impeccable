@@ -94,8 +94,8 @@ pub fn run(args: &[String], io: &mut Io, pack: InstalledPack) -> i32 {
             }
         },
         "build-phase" => {
-            // Inject the organic-clip-path CSS scanner (a rule that lives in the
-            // closed `core` crate) so comp-verbs stays core-free.
+            // Inject the organic-clip-path CSS scanner (a rule that lives in
+            // `crates/core`) so comp-verbs stays core-free.
             let organic = |html: &str| -> Vec<(Option<String>, String)> {
                 impeccable_core::checks::css_scan::scan_css_text_for_organic_clip_path(html)
                     .into_iter()
