@@ -28,6 +28,8 @@ crates/
   hook         the design hook (hook, hook-before-edit, hook-admin)
   live         live mode: server, wrap, accept, manual edits, Svelte/Vue
   skills       install / update / check / link (the old npm CLI verbs)
+  account      login / logout / whoami, design health, Pro dispatch
+  agents       `impeccable agents`: user-scope Claude Code / Codex setup
   comp         comp-fidelity pure libs (raster, png, metrics, fonts)
   comp-verbs   build-phase, comp-diff, comp-spec, font-match
   detect       `impeccable detect`: file walk, config, ignores, output, regex engine

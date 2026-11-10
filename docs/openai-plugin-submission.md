@@ -34,21 +34,21 @@ Use the verified Renaissance Geek Inc business identity. The generated manifest 
 ### 1. Technical UI audit
 
 - User prompt: `audit demos/landing-demo/index.html for accessibility, responsive behavior, and performance problems.`
-- Expected behavior: Invoke Impeccable, load the audit and brand references, inspect the existing HTML, CSS, PRODUCT.md, and DESIGN.md, then run the bundled detector where applicable.
+- Expected behavior: Invoke Impeccable, load the audit reference, inspect the existing HTML, CSS, PRODUCT.md, and DESIGN.md, then run the bundled detector where applicable.
 - Expected result: A prioritized audit with evidence, affected selectors or files, severity, and concrete fixes. Do not change files unless the user also asks for fixes.
 - Fixture data: The public `demos/landing-demo/` folder in `pbakaus/impeccable`.
 
 ### 2. Final polish pass
 
 - User prompt: `polish demos/landing-demo/index.html and fix the rough edges without changing the brand.`
-- Expected behavior: Invoke Impeccable, load the polish and brand references, preserve the existing design tokens, inspect the page in a browser when available, and make scoped edits.
+- Expected behavior: Invoke Impeccable, load the polish reference, preserve the existing design tokens, inspect the page in a browser when available, and make scoped edits.
 - Expected result: Updated frontend files plus a concise summary of visual, responsive, and accessibility improvements and the validation performed.
 - Fixture data: The public `demos/landing-demo/` folder in `pbakaus/impeccable`.
 
 ### 3. Layout correction
 
 - User prompt: `The landing page spacing and hierarchy feel flat. Fix the layout.`
-- Expected behavior: Route to the layout workflow, inspect the existing design system, identify the marketing register, and adjust spacing, rhythm, alignment, and hierarchy without replacing unrelated styles.
+- Expected behavior: Route to the layout workflow, inspect the existing design system, identify the surface as Persuade mode, and adjust spacing, rhythm, alignment, and hierarchy without replacing unrelated styles.
 - Expected result: Scoped HTML or CSS changes that preserve content and brand, followed by responsive verification.
 - Fixture data: The public `demos/landing-demo/` folder in `pbakaus/impeccable`.
 
