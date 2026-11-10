@@ -1,0 +1,94 @@
+{
+  "configVersion": "1.1.0",
+  "compileOrder": [
+    "client",
+    "features",
+    "developer",
+    "glossary"
+  ],
+  "guides": [
+    {
+      "name": "client"
+    },
+    {
+      "name": "features"
+    },
+    {
+      "name": "developer"
+    },
+    {
+      "name": "glossary"
+    }
+  ],
+  "review": {
+    "maxIndexEntries": 12,
+    "maxShardWords": 2500,
+    "minDuplicateWords": 25
+  },
+  "standaloneGuides": [
+    "README.md",
+    "README.npm.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "NOTICE.md",
+    "docs/*.md",
+    "browser-bundle/README.md",
+    "cli/platform-packages/README.md",
+    "crates/live/assets/README.md",
+    "cursor-plugin/README.md",
+    "extension/STORE_LISTING.md",
+    "tests/oracle/README.md",
+    "tests/oracle/DELTAS.md",
+    "tests/skill-behavior/README.md",
+    "tests/oracle/vectors/README.md",
+    "tests/framework-fixtures/README.md",
+    "tests/new-work-e2e/README.md",
+    "tests/fixtures/extension-scan/README.md",
+    "ui/component-review/README.md",
+    "vscode/README.md",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/ISSUE_TEMPLATE/*.md"
+  ],
+  "scan": {
+    "ignore": [
+      "skill",
+      "plugin",
+      "cursor-plugin/skills",
+      "cursor-plugin/agents",
+      ".agent",
+      ".agents",
+      ".claude",
+      ".cursor",
+      ".devin",
+      ".dsh",
+      ".gemini",
+      ".github/skills",
+      ".github/agents",
+      ".grok",
+      ".hermes",
+      ".kiro",
+      ".omp",
+      ".opencode",
+      ".pi",
+      ".qoder",
+      ".rovodev",
+      ".trae",
+      ".trae-cn",
+      ".veto",
+      ".vibe",
+      ".impeccable",
+      "demos",
+      "tests/oracle/workspaces",
+      "tests/oracle/golden",
+      "tests/fixtures/mode-rules-skill",
+      "tests/fixtures/mode-rules-skill-partial",
+      "tests/framework-fixtures/monorepo-nested-vite",
+      "tests/framework-fixtures/vite8-sveltekit-stateful",
+      "crates/comp/tests/fixtures",
+      "ui/component-review/DESIGN-stage.md",
+      "PRODUCT.md",
+      "DESIGN.md"
+    ],
+    "strict": true
+  }
+}
