@@ -1,5 +1,7 @@
 # Comp fidelity: measuring the build against the comp
 
+> **Ready to archive after review.** This is a design note and eval record. Its gate values are out of date (the plate minimum is 0.4, not 0.5, and the phase list starts with `comps`); [features/comp-led-build.md](features/comp-led-build.md) states the current contract, which `crates/comp-verbs/src/build_phase.rs` enforces. The eval sweeps belong in the evals repo.
+
 Status: shipped on `feat/comp-fidelity` (2026-08). Owner: skill (`skill/scripts/comp-*.mjs`, `build-phase.mjs`) plus two detector rules.
 
 ## The problem

@@ -1,5 +1,7 @@
 # Impeccable 4.4.0 release candidate
 
+> **Ready to archive after review.** This is the release note for 4.4.0, which has shipped. The behavior it describes is specified in [features/comp-led-build.md](features/comp-led-build.md) and [PLAN-REVIEW.md](PLAN-REVIEW.md); git history keeps this note.
+
 Comp-led work now asks the user to review the produced component kit before page assembly, then the assembled first viewport before completion. The shared browser interface covers raster assets and rendered HTML/CSS/SVG, individual approval and repair feedback, missing regions, unchanged approvals across rounds, and current/previous comparison.
 
 Engine 0.1.6 owns capture, frozen input provenance, durable review sessions and current-input approval verification. Existing comp fidelity, semantic-control and completion checks remain independent; human approval does not manufacture detector evidence or remove an integrity failure. The broader native capture and completion repairs in this PR retain their regression coverage.

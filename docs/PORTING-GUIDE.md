@@ -1,5 +1,7 @@
 # Porting guide
 
+> **Ready to archive after review.** This guide served the JS-to-Rust port, which is finished. Its Windows section still holds; [developer/engine-development.md](developer/engine-development.md) covers day-to-day engine work.
+
 Conventions every porting task follows. The bar is byte-equal behavior against
 the JS goldens; read this before touching a crate.
 
